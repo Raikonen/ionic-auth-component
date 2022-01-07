@@ -1,0 +1,7 @@
+{
+  "name": "reusable-login-component",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
