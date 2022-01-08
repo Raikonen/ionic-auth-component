@@ -15,6 +15,14 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { Link } from 'react-router-dom';
 import GoogleLogin from 'react-google-login';
 import { useToast } from '../../utils/useToasts';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from "yup";
+
+interface IFormInputs {
+  email: string
+  password: number
+}
+
 
 const Signup: React.FC = () => {
   const Toast = useToast();
@@ -29,7 +37,19 @@ const Signup: React.FC = () => {
     confirmPassword: string,
   };
 
-  const { register, handleSubmit, formState: { errors } } = useForm<Inputs>();
+  const validationSchema = yup.object({
+    email: yup.string().email('Must be a valid email').required('Email is required'),
+    password: yup.string()
+      .required('Password is required')
+      .min(6, 'Password must be at least 6 characters'),
+    confirmPassword: yup.string()
+      .required('Password confirmation is required')
+      .oneOf([yup.ref('password')], 'Passwords must match')
+  });
+
+  const formOptions = { resolver: yupResolver(validationSchema) };
+
+  const { register, handleSubmit, formState: { errors } } = useForm<Inputs>(formOptions);
   const onSubmit: SubmitHandler<Inputs> = data => console.log(data);
 
   const signup = async () => {
@@ -78,13 +98,15 @@ const Signup: React.FC = () => {
             </div>
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className='auth-input'>
-                <input type="email" placeholder='Email' {...register("email")} />
+                <input placeholder='Email' {...register("email")}
+                  className={errors.email ? 'is-invalid' : ''} />
+                {errors.email && <p>{errors.email.message}</p>}
                 <input type="password" placeholder='Password' {...register("password", { minLength: 6 })}
                   className={errors.password ? 'is-invalid' : ''} />
-                {errors.password && <p>Please use a password with at least 6 characters</p>}
-                <input type="password" placeholder='Re-type Password' {...register("password", { required: true })}
-                  className={errors.password ? 'is-invalid' : ''} />
-                {errors.password && <p>This field is required</p>}
+                {errors.password && <p>{errors.password.message}</p>}
+                <input type="password" placeholder='Re-type Password' {...register("confirmPassword", { required: true })}
+                  className={errors.confirmPassword ? 'is-invalid' : ''} />
+                {errors.confirmPassword && <p>{errors.confirmPassword.message}</p>}
               </div>
               <IonButton type="submit" size="large" onSubmit={() => signup} color="primary">
                 {loading

@@ -17,6 +17,8 @@ import { moonOutline, arrowForwardOutline } from 'ionicons/icons';
 
 import './Login.css'
 import { useToast } from '../../utils/useToasts';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from "yup";
 
 const Login: React.FC = () => {
   const Toast = useToast();
@@ -27,7 +29,15 @@ const Login: React.FC = () => {
     password: string,
   };
 
-  const { register, handleSubmit, formState: { errors } } = useForm<Inputs>();
+  const validationSchema = yup.object({
+    email: yup.string().email('Must be a valid email').required('Email is required'),
+    password: yup.string()
+      .required('Password is required')
+  });
+
+  const formOptions = { resolver: yupResolver(validationSchema) };
+
+  const { register, handleSubmit, formState: { errors } } = useForm<Inputs>(formOptions);
   const onSubmit: SubmitHandler<Inputs> = data => console.log(data);
 
   const login = async (data: Inputs) => {
@@ -78,8 +88,10 @@ const Login: React.FC = () => {
             </div>
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className='auth-input'>
-                <input required type="email" placeholder='Email' {...register("email")} />
-                <input required type="password" placeholder='Password' {...register("password")} />
+                <input placeholder='Email' {...register("email")} className={errors.email ? 'is-invalid' : ''} />
+                {errors.email && <p>{errors.email.message}</p>}
+                <input type="password" placeholder='Password' {...register("password")} className={errors.password ? 'is-invalid' : ''} />
+                {errors.password && <p>{errors.password.message}</p>}
               </div>
               <IonButton type="submit" size="large" onSubmit={() => login} color="primary">
                 {loading
