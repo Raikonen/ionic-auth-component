@@ -1,3 +1,9 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import GoogleLogin from 'react-google-login';
+import { useForm, SubmitHandler } from "react-hook-form";
+import * as yup from "yup";
+import { yupResolver } from '@hookform/resolvers/yup';
 import {
   IonButton,
   IonContent,
@@ -9,33 +15,19 @@ import {
   IonToggle,
   IonToolbar,
 } from '@ionic/react';
-import { useState } from 'react';
 import { moonOutline, arrowForwardOutline } from 'ionicons/icons';
-import { useForm, SubmitHandler } from "react-hook-form";
-import { Link } from 'react-router-dom';
-import GoogleLogin from 'react-google-login';
+
 import { useToast } from '../../utils/useToasts';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from "yup";
 
-interface IFormInputs {
-  email: string
-  password: number
-}
-
+type Inputs = {
+  email: string,
+  password: string,
+  confirmPassword: string,
+};
 
 const Signup: React.FC = () => {
   const Toast = useToast();
   const [loading, setLoading] = useState<boolean>(false);
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [confirmPassword, setConfirmPassword] = useState<string>('');
-
-  type Inputs = {
-    email: string,
-    password: string,
-    confirmPassword: string,
-  };
 
   const validationSchema = yup.object({
     email: yup.string().email('Must be a valid email').required('Email is required'),
@@ -48,11 +40,10 @@ const Signup: React.FC = () => {
   });
 
   const formOptions = { resolver: yupResolver(validationSchema) };
-
   const { register, handleSubmit, formState: { errors } } = useForm<Inputs>(formOptions);
   const onSubmit: SubmitHandler<Inputs> = data => console.log(data);
 
-  const signup = async () => {
+  const signup = async (data: Inputs) => {
     try { } catch (err) {
       Toast.info('Error logging with your credentials');
     } finally {

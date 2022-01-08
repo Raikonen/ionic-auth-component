@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import GoogleLogin from 'react-google-login';
 import { useForm, SubmitHandler } from "react-hook-form";
+import * as yup from "yup";
+import { yupResolver } from '@hookform/resolvers/yup';
 import {
   IonButton,
   IonContent,
@@ -15,19 +17,17 @@ import {
 } from '@ionic/react';
 import { moonOutline, arrowForwardOutline } from 'ionicons/icons';
 
-import './Login.css'
 import { useToast } from '../../utils/useToasts';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from "yup";
+import './Login.css'
+
+type Inputs = {
+  email: string,
+  password: string,
+};
 
 const Login: React.FC = () => {
   const Toast = useToast();
   const [loading, setLoading] = useState<boolean>(false);
-
-  type Inputs = {
-    email: string,
-    password: string,
-  };
 
   const validationSchema = yup.object({
     email: yup.string().email('Must be a valid email').required('Email is required'),
@@ -36,7 +36,6 @@ const Login: React.FC = () => {
   });
 
   const formOptions = { resolver: yupResolver(validationSchema) };
-
   const { register, handleSubmit, formState: { errors } } = useForm<Inputs>(formOptions);
   const onSubmit: SubmitHandler<Inputs> = data => console.log(data);
 
@@ -61,7 +60,6 @@ const Login: React.FC = () => {
   const toggleDarkModeHandler = () => document.body.classList.toggle('dark');
 
   return (
-
     <IonPage>
       <IonHeader>
         <IonToolbar>
@@ -100,7 +98,6 @@ const Login: React.FC = () => {
                 }
               </IonButton>
             </form>
-
             <div className="auth-prompt">
               <p>
                 <Link to="/reset-password">Forgot password?</Link>
